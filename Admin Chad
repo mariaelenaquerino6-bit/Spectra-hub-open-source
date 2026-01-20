@@ -1,0 +1,201 @@
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+
+local Library = {}
+
+function Library:MakeWindow(Config)
+    local Window = { CurrentTab = nil }
+    
+    -- GUI PRINCIPAL
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WandUI_Pro_Lite"
+    ScreenGui.ResetOnSpawn = false
+    pcall(function() ScreenGui.Parent = CoreGui end)
+    if not ScreenGui.Parent then ScreenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui") end
+
+    -- MAIN FRAME (DESIGN DA IMAGEM)
+    local Main = Instance.new("Frame", ScreenGui)
+    Main.Name = "MainFrame"
+    Main.Size = UDim2.new(0, 520, 0, 340)
+    Main.Position = UDim2.new(0.5, -260, 0.5, -170)
+    Main.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+    Main.BorderSizePixel = 0
+    Main.ClipsDescendants = true
+    
+    local MainCorner = Instance.new("UICorner", Main)
+    MainCorner.CornerRadius = UDim.new(0, 12)
+
+    -- FUNDO CUSTOMIZÁVEL
+    local BackgroundImage = Instance.new("ImageLabel", Main)
+    BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
+    BackgroundImage.BackgroundTransparency = 1
+    BackgroundImage.Image = ""
+    BackgroundImage.ImageTransparency = 0.4
+    BackgroundImage.ScaleType = Enum.ScaleType.Crop
+    BackgroundImage.ZIndex = 0
+    Instance.new("UICorner", BackgroundImage).CornerRadius = UDim.new(0, 12)
+
+    -- BARRA LATERAL (SIDEBAR)
+    local SideBar = Instance.new("Frame", Main)
+    SideBar.Size = UDim2.new(0, 140, 1, 0)
+    SideBar.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    SideBar.BackgroundTransparency = 0.2
+    SideBar.BorderSizePixel = 0
+    
+    local SideCorner = Instance.new("UICorner", SideBar)
+    SideCorner.CornerRadius = UDim.new(0, 12)
+
+    local TabContainer = Instance.new("ScrollingFrame", SideBar)
+    TabContainer.Size = UDim2.new(1, 0, 1, -60)
+    TabContainer.Position = UDim2.new(0, 0, 0, 50)
+    TabContainer.BackgroundTransparency = 1
+    TabContainer.ScrollBarThickness = 0
+    
+    local TabList = Instance.new("UIListLayout", TabContainer)
+    TabList.Padding = UDim.new(0, 6)
+    TabList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+    -- TÍTULO NA SIDEBAR
+    local LibTitle = Instance.new("TextLabel", SideBar)
+    LibTitle.Size = UDim2.new(1, 0, 0, 40)
+    LibTitle.Text = Config.Title or "Wand Hub"
+    LibTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    LibTitle.Font = Enum.Font.GothamBold
+    LibTitle.TextSize = 14
+    LibTitle.BackgroundTransparency = 1
+
+    -- CONTAINER DE PÁGINAS (DIREITA)
+    local PageContainer = Instance.new("Frame", Main)
+    PageContainer.Size = UDim2.new(1, -160, 1, -20)
+    PageContainer.Position = UDim2.new(0, 150, 0, 10)
+    PageContainer.BackgroundTransparency = 1
+
+    -- FUNÇÕES DE ESTILO
+    function Window:SetBackground(id) BackgroundImage.Image = "rbxassetid://" .. tostring(id):gsub("rbxassetid://", "") end
+    function Window:SetTransparency(val) Main.BackgroundTransparency = val; SideBar.BackgroundTransparency = val + 0.1 end
+
+    -- ARRASTAR
+    local dragging, dragStart, startPos
+    Main.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true; dragStart = input.Position; startPos = Main.Position
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function() dragging = false end)
+
+    -- MAKETAB
+    function Window:MakeTab(TabConfig)
+        local Name = TabConfig.Title or TabConfig[1]
+        
+        local TabBtn = Instance.new("TextButton", TabContainer)
+        TabBtn.Size = UDim2.new(0, 120, 0, 32)
+        TabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        TabBtn.BackgroundTransparency = 0.8
+        TabBtn.Text = Name
+        TabBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+        TabBtn.Font = Enum.Font.GothamMedium
+        TabBtn.TextSize = 12
+        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
+        
+        local Page = Instance.new("ScrollingFrame", PageContainer)
+        Page.Size = UDim2.new(1, 0, 1, 0)
+        Page.BackgroundTransparency = 1
+        Page.Visible = false
+        Page.ScrollBarThickness = 0
+        local PageList = Instance.new("UIListLayout", Page)
+        PageList.Padding = UDim.new(0, 10)
+        
+        PageList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            Page.CanvasSize = UDim2.new(0, 0, 0, PageList.AbsoluteContentSize.Y + 10)
+        end)
+
+        TabBtn.MouseButton1Click:Connect(function()
+            for _, v in pairs(PageContainer:GetChildren()) do v.Visible = false end
+            for _, v in pairs(TabContainer:GetChildren()) do 
+                if v:IsA("TextButton") then v.TextColor3 = Color3.fromRGB(180, 180, 180); v.BackgroundTransparency = 0.8 end 
+            end
+            Page.Visible = true
+            TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            TabBtn.BackgroundTransparency = 0.5
+        end)
+
+        if not Window.CurrentTab then
+            Window.CurrentTab = Page
+            Page.Visible = true
+            TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+
+        local Elements = {}
+
+        function Elements:AddButton(C)
+            local B = Instance.new("TextButton", Page)
+            B.Size = UDim2.new(1, 0, 0, 38)
+            B.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+            B.Text = "  " .. C.Name
+            B.TextColor3 = Color3.fromRGB(255, 255, 255)
+            B.Font = Enum.Font.Gotham
+            B.TextSize = 13
+            B.TextXAlignment = Enum.TextXAlignment.Left
+            Instance.new("UICorner", B).CornerRadius = UDim.new(0, 8)
+            B.MouseButton1Click:Connect(C.Callback)
+        end
+
+        function Elements:AddDropdown(C)
+            local D = Instance.new("TextButton", Page)
+            D.Size = UDim2.new(1, 0, 0, 38)
+            D.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+            D.Text = "  " .. C.Name .. " >"
+            D.TextColor3 = Color3.fromRGB(255, 255, 255)
+            D.Font = Enum.Font.Gotham
+            D.TextXAlignment = Enum.TextXAlignment.Left
+            Instance.new("UICorner", D).CornerRadius = UDim.new(0, 8)
+            
+            function D:NewOptions(opts) -- Implementação simplificada
+                D.Text = "  " .. C.Name .. " (Updated)"
+            end
+            D.MouseButton1Click:Connect(function() C.Callback(C.Options[1]) end)
+            return D
+        end
+
+        function Elements:AddSection(T)
+            local S = Instance.new("TextLabel", Page)
+            S.Size = UDim2.new(1, 0, 0, 20)
+            S.Text = T:upper()
+            S.TextColor3 = Color3.fromRGB(80, 80, 80)
+            S.Font = Enum.Font.GothamBold
+            S.TextSize = 10
+            S.BackgroundTransparency = 1
+            S.TextXAlignment = Enum.TextXAlignment.Left
+        end
+
+        return Elements
+    end
+
+    function Window:NewMinimizer(C)
+        local M = {}
+        function M:CreateMobileMinimizer(P)
+            local Sc = Instance.new("ScreenGui", ScreenGui.Parent)
+            local B = Instance.new("ImageButton", Sc)
+            B.Size = UDim2.new(0, 45, 0, 45)
+            B.Position = UDim2.new(0.1, 0, 0.5, 0)
+            B.Image = P.Image or "rbxassetid://6031094678"
+            B.BackgroundColor3 = P.BackgroundColor3 or Color3.new(0,0,0)
+            Instance.new("UICorner", B).CornerRadius = UDim.new(1,0)
+            B.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
+        end
+        return M
+    end
+
+    return Window
+end
+
+return Library
