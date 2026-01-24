@@ -250,7 +250,6 @@ if AdminNames then
     {"/lag", "lag"},
     {"/genkidama", "genkidama"},
     {"/bring", "bring"},
-    {"/goner", "goner"},
     {"/explode", "explode"} -- Adicionado aqui
 }
 
@@ -485,25 +484,7 @@ TextChatService.MessageReceived:Connect(function(msg)
                 -- Limpeza do som
                 task.delay(3, function() if sound then sound:Destroy() end end)
             end  
-
- 
-        elseif cmd == "goner" then
-    -- Se o alvo for você (ou quando você usar o "todos")
-    if victim == localPlayer then
-        task.spawn(function()
-            -- Pequeno delay para sincronia
-            task.wait(0.1)
-            
-            -- O pcall serve para o seu script não crashar se o link estiver offline
-            local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/Dboas123432sx/personagem/refs/heads/main/goner"))()
-            end)
-            
-            if not success then
-                warn("Erro ao carregar script: " .. tostring(err))
-            end
-        end)
-    end
+      
 
         -- [[ COMANDOS EXTRAS ]]
         elseif cmd == "kill" then if hum then hum.Health = 0 end
@@ -675,11 +656,10 @@ local Settings = {
     ["Fade Out"] = 0.1
 }
 
-OPTab:AddToggle({
+OPTab:AddButton({
     Name = "Ativar Skybox FE",
     Description = "Muda a tua camisa no Roblox para trocar a Skybox.",
-    Flag = "ToggleSkyboxFE",
-    Callback = function(enabled)
+    Callback = function()
         local Remotes = game:GetService("ReplicatedStorage")
         local Player = game:GetService("Players").LocalPlayer
         
@@ -706,90 +686,43 @@ OPTab:AddToggle({
             newTrack.Priority = Enum.AnimationPriority.Action4
             
             local weight = 1
-            if weight == 0 then weight = 0.001 end
-
             newTrack:Play(0.1, weight, 1)
             CurrentTrack = newTrack
             return newTrack
         end
+
+        -- Lógica de Ativação Direta
+        skyboxActivatedByUser = true
         
-        -- Função para parar animações
-        local function StopTrack()
-            if CurrentTrack then
-                CurrentTrack:Stop(Settings["Fade Out"])
-                CurrentTrack = nil
-            end
+        local args = {{100839513065432}}
+        pcall(function()
+            Remotes:WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
+        end)
+        
+        task.wait(0.5)
+        
+        local humanoid = (Player.Character or Player.CharacterAdded:Wait()):FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            LoadTrack("93224413172183")
+            
+            task.wait(0.5)
+            
+            local idleAnim = Instance.new("Animation")
+            idleAnim.AnimationId = "rbxassetid://3695333486"
+            local idleTrack = humanoid:LoadAnimation(idleAnim)
+            idleTrack.Priority = Enum.AnimationPriority.Movement
+            idleTrack:Play(0.1, 1, 0)
         end
         
-        if skyboxFirstActivation then
-            if enabled then
-                skyboxActivatedByUser = true
-                
-                local args = {{100839513065432}}
-                pcall(function()
-                    Remotes:WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
-                end)
-                
-                task.wait(0.5)
-                
-                local humanoid = (Player.Character or Player.CharacterAdded:Wait()):FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    LoadTrack("93224413172183")
-                    
-                    task.wait(0.5)
-                    
-                    local idleAnim = Instance.new("Animation")
-                    idleAnim.AnimationId = "rbxassetid://3695333486"
-                    local idleTrack = humanoid:LoadAnimation(idleAnim)
-                    idleTrack.Priority = Enum.AnimationPriority.Movement
-                    idleTrack:Play(0.1, 1, 0)
-                end
-                
-                Window:Notify({
-                    Title = "Skybox FE",
-                    Content = "Ativado com sucesso!",
-                    Duration = 5
-                })
-            else
-                if not skyboxActivatedByUser then
-                    Window:Notify({
-                        Title = "Skybox FE",
-                        Content = "Ignorado: não foi ativado por ti.",
-                        Duration = 5
-                    })
-                    return
-                end
-                
-                StopTrack()
-                
-                pcall(function()
-                    Remotes.Remotes.ResetCharacterAppearance:FireServer()
-                end)
-                
-                task.wait(0.3)
-                
-                local char = Player.Character
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    hum.Health = 0
-                end
-                
-                Window:Notify({
-                    Title = "Skybox FE",
-                    Content = "Desativado e aparência restaurada!",
-                    Duration = 5
-                })
-                skyboxActivatedByUser = false
-            end
-        else
-            skyboxFirstActivation = true
-            if enabled then
-                skyboxActivatedByUser = true
-            end
-        end
+        Window:Notify({
+            Title = "Skybox FE",
+            Content = "Ativado com sucesso!",
+            Duration = 5
+        })
     end
 })
 
+MainTab:AddParagraph("Info", "Renicie para desativar o skyblox")
 
 OPTab:AddSection("FlashBang/Nuke")
 
@@ -801,8 +734,8 @@ local FlashSettings = {
 }
 
 OPTab:AddToggle({
-    Name = "Ativar Skyblox Flashbang",
-    Description = "Mude A cor Do Seu Avatar Para Alterar o Flashbang",
+    Name = "Ativar Nuke Server",
+    Description = "Nuke Server",
     Flag = "ToggleSkybloxFlashbang",
     Callback = function(active)
         local GameRemotes = game:GetService("ReplicatedStorage")
@@ -918,24 +851,6 @@ OPTab:AddToggle({
     end
 })
 
-OPTab:AddToggle({
-    Name = "RGB Flashbang",
-    Callback = function(Value)
-        _G.RGBFlash = Value
-        task.spawn(function()
-            local i = 1
-            while _G.RGBFlash do
-                -- Só executa se o Flashbang estiver ativo
-                if userFlash then
-                    local RS = game:GetService("ReplicatedStorage")
-                    RS:WaitForChild("Remotes"):WaitForChild("ChangeBodyColor"):FireServer(BodyColors[i])
-                    i = (i % #BodyColors) + 1
-                end
-                task.wait(0.4)
-            end
-        end)
-    end
-})
 
 -- [[ ABA TROLL ]]
 MainTab:AddSection("Troll Player")
@@ -6327,6 +6242,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
