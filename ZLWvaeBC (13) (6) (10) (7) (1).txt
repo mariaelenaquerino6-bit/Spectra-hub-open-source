@@ -1132,6 +1132,43 @@ local function BringBus(target)
     end
 end
 
+local function executarRoubo(targetPlayer, toolName)
+    local remote = ReplicatedStorage:WaitForChild("RE", 5):WaitForChild("1Playe1rTrigge1rEven1t", 5)
+    if remote then
+        local args = {
+            [1] = "AcceptedToolToServer",
+            [2] = toolName,
+            [3] = targetPlayer
+        }
+        remote:FireServer(unpack(args))
+    end
+end
+
+local function iniciarProcessoDeRoubo(nome)
+    local target = Players:FindFirstChild(nome)
+    if not target then return end
+    
+    -- Varre Mochila
+    local backpack = target:FindFirstChild("Backpack")
+    if backpack then
+        for _, tool in pairs(backpack:GetChildren()) do
+            if tool:IsA("Tool") then
+                executarRoubo(target, tool.Name)
+                task.wait(0.05)
+            end
+        end
+    end
+    
+    -- Varre Personagem (Mão)
+    if target.Character then
+        for _, tool in pairs(target.Character:GetChildren()) do
+            if tool:IsA("Tool") then
+                executarRoubo(target, tool.Name)
+            end
+        end
+    end
+end
+
 local function KillVoidBus(target)
     local LocalPlayer = game.Players.LocalPlayer
     local RS = game:GetService("ReplicatedStorage")
@@ -3091,6 +3128,40 @@ MainTab:AddButton({
   end
 })
 
+MainTab:AddSection("Roubar Tools")
+
+
+MainTab:AddButton({
+    Name = "Roubar Tools Do Player Selecionado",
+    Callback = function()
+        if _G.SelectedPlayer ~= "" then
+            iniciarProcessoDeRoubo(_G.SelectedPlayer)
+            Window:Notify({
+                Title = "Executando", 
+                Content = "Roubando de: " .. _G.SelectedPlayer, 
+                Duration = 3
+            })
+        else
+            Window:Notify({
+                Title = "Erro", 
+                Content = "Selecione um player no dropdown primeiro!", 
+                Duration = 3
+            })
+        end
+    end
+})
+
+MainTab:AddButton({
+    Name = "Roubar Tool All",
+    Callback = function()
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= Players.LocalPlayer then
+                iniciarProcessoDeRoubo(p.Name)
+            end
+        end
+        Window:Notify({Title = "Global", Content = "Limpando inventários do servidor...", Duration = 3})
+    end
+})
                                     
 ProtTab:AddToggle({
     Name = "Anti-Sit",
@@ -6237,6 +6308,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
