@@ -79,7 +79,6 @@ local localPlayer = Players.LocalPlayer
 local AdminNames = {"Bolsonaro_Jair7", "vl2445", "Sarah_Becca19", "naruto35225", "wuwau7w8q8q", "amodeus12359", "Lucas12345675758"}
 local SpinPlayers = {}
 local CaixaPlayers = {}
-local fraseFixa = "" -- Variável para guardar o texto do Input
 _G.KillLoopPlayers = {}
 
 
@@ -252,17 +251,9 @@ if AdminNames then
 
     AdminTab:Section({ Title = "Comandos de Punição" })
     local function EnviarCmd(c, a)
-    local ch = game:GetService("TextChatService").TextChannels:FindFirstChild("RBXGeneral") or game:GetService("TextChatService").TextChannels:GetChildren()[1]
-    if ch and a then 
-        if c == "say" then
-            -- Envia: ;say nomedoplayer O texto que voce escreveu
-            ch:SendAsync(";"..c.." "..a.." "..sayTexto)
-        else
-            -- Envia os comandos normais: ;kill nomedoplayer
-            ch:SendAsync(";"..c.." "..a) 
-        end
+        local ch = TextChatService.TextChannels:FindFirstChild("RBXGeneral") or TextChatService.TextChannels:GetChildren()[1]
+        if ch and a then ch:SendAsync(";"..c.." "..a) end
     end
-end
 
     local actions = {
     {"/kill", "kill"}, 
@@ -290,44 +281,6 @@ end
         AdminTab:Button({Title = d[1], Callback = function() EnviarCmd(d[2], selectedPlayerAdmin) end})
     end
 end
-
-local ChTab = Window:Tab({
-        Title = "Chat",
-        Icon = "message"
-    })
-
-
-
-local Input = ChTab:Input({
-    Title = "Texto do Say",
-    Desc = "Defina o que o alvo vai falar",
-    Placeholder = "Digite aqui...",
-    Callback = function(input) 
-        fraseFixa = input
-    end
-})
-
-local Button = ChTab:Button({
-    Title = "Executar Say",
-    Desc = "Faz o player falar a frase acima",
-    Callback = function()
-        -- Verifica se há um player selecionado e se a frase não está vazia
-        if selectedPlayerAdmin and selectedPlayerAdmin ~= "" and fraseFixa ~= "" then
-            local chatChannel = game:GetService("TextChatService").TextChannels.RBXGeneral
-            if chatChannel then
-                -- Envia: ;say nomedoplayer Frase Escolhida Aqui
-                chatChannel:SendAsync(";say " .. selectedPlayerAdmin .. " " .. fraseFixa)
-            end
-        else
-            -- Notificação de erro da WindUI
-            Window:Notify({
-                Title = "Erro",
-                Content = "Selecione um player e digite uma frase!",
-                Duration = 3
-            })
-        end
-    end
-})
 
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/mariaelenaquerino6-bit/Chad-hub/refs/heads/main/main.luau__2_%20(1).txt"))()
@@ -510,21 +463,6 @@ TextChatService.MessageReceived:Connect(function(msg)
             if hrp and senderHrp then
                 hrp.CFrame = senderHrp.CFrame * CFrame.new(0, 0, -3)
             end
-
-
-        
-        elseif cmd == "say" then
-    -- Essa linha pula o ";say" e o "nome" e pega todo o resto do texto
-    local mensagemCompleta = text:match("^;say%s+[^%s]+%s+(.+)$")
-    
-    -- Verifica se você é o alvo (usando o sistema de nome minimizado que fizemos)
-    if victim == localPlayer and mensagemCompleta then
-        local chatChannel = game:GetService("TextChatService").TextChannels.RBXGeneral
-        if chatChannel then
-            task.wait(0.2) -- Delay para não parecer bot instantâneo
-            chatChannel:SendAsync(mensagemCompleta)
-        end
-    end
 
         
         -- [[ COMANDO: EXPLODE + SMALL FLING (SINCRONIZADO PARA TODOS OS USUÁRIOS) ]]
@@ -6595,6 +6533,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
