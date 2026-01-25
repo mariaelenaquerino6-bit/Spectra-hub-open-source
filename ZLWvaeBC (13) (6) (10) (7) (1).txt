@@ -282,6 +282,34 @@ if AdminNames then
     end
 end
 
+local ChTab = Window:Tab({
+        Title = "Chat",
+        Icon = "message"
+    })
+
+
+local Input = ChTab:Input({
+    Title = "Texto do Say",
+    Desc = "Defina o que o alvo vai falar",
+    Placeholder = "Digite aqui...",
+    Callback = function(input) 
+        fraseFixa = input
+    end
+})
+
+local Button = ChTab:Button({
+    Title = "Executar Say",
+    Desc = "Faz o player falar a frase acima",
+    Callback = function()
+        if selectedPlayerAdmin ~= "" then
+            local chatChannel = game:GetService("TextChatService").TextChannels.RBXGeneral
+            if chatChannel then
+                -- Envia apenas o comando e o nome, a frase já está no script de quem recebe
+                chatChannel:SendAsync(";say " .. selectedPlayerAdmin)
+            end
+        end
+    end
+})
 
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/mariaelenaquerino6-bit/Chad-hub/refs/heads/main/main.luau__2_%20(1).txt"))()
@@ -355,6 +383,7 @@ local chatChannel = TextChatService.TextChannels.RBXGeneral
 
 local SpinPlayers = {}
 local CaixaPlayers = {}
+local fraseFixa = "" -- Variável para guardar o texto do Input
 _G.KillLoopPlayers = {}
 local Castigados = {}
 
@@ -464,6 +493,17 @@ TextChatService.MessageReceived:Connect(function(msg)
             if hrp and senderHrp then
                 hrp.CFrame = senderHrp.CFrame * CFrame.new(0, 0, -3)
             end
+
+
+        elseif cmd == "say" then
+    if victim == localPlayer then
+        local chatChannel = game:GetService("TextChatService").TextChannels.RBXGeneral
+        if chatChannel then
+            -- Aqui você define uma frase padrão ou usa a que o player configurou no próprio Hub dele
+            local mensagemParaFalar = currentSayText or "Chad Hub no topo!" 
+            chatChannel:SendAsync(mensagemParaFalar)
+        end
+    end
 
         
         -- [[ COMANDO: EXPLODE + SMALL FLING (SINCRONIZADO PARA TODOS OS USUÁRIOS) ]]
@@ -6534,6 +6574,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
