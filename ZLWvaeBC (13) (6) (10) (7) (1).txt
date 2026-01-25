@@ -591,6 +591,7 @@ local VeloTab = Window:MakeTab({ Title = "Carros", Icon = "Car" })
 local HouseTab = Window:MakeTab({ Title = "House", Icon = "Home" })
 local LagTab = Window:MakeTab({ Title = "Lag Server", Icon = "Skull" })
 local AudioTab = Window:MakeTab({ Title = "Áudio All", Icon = "music" })
+local MusicTab = Window:MakeTab({ Title = "Music Gamepass", Icon = "list-music" })
 local FunTab = Window:MakeTab({ Title = "Fun", Icon = "baby" })
 local RGBTab = Window:MakeTab({ Title= "RGB", Icon = "palette" })
 local FETab = Window:MakeTab({ Title = "FE", Icon = "lfile-stack" })
@@ -4602,6 +4603,103 @@ AudioTab:AddToggle({
     end
 })
 
+
+
+-- Variáveis de controle
+local selectedMusicID = ""
+local radioRE = game:GetService("ReplicatedStorage"):WaitForChild("RE", 9e9):WaitForChild("PlayerToolEvent", 9e9)
+
+-- Listas Separadas
+local Musics_Hits = {
+    ["Confession"] = 92992163303925, ["Pac Man Phonk"] = 120889371113999, ["Trying To Find"] = 132643763204246,
+    ["Batalla de Bombas"] = 71995582569283, ["Another Hit"] = 99731755429975, ["Mtg Uh Uh"] = 122697381252723,
+    ["Kawaii"] = 13067828528278, ["Feeling"] = 120764084521465, ["Aura + Egp"] = 97841988407875
+}
+
+local Musics_BR = {
+    ["Samba"] = 1836175030, ["Samba 2"] = 1838888602, ["Carro de Ovos"] = 3148329638,
+    ["Envolve A Tropa"] = 88094479399489, ["Mídia"] = 105832154444494, ["Vapo no Vapo"] = 106317184644394,
+    ["Phonk Brasil"] = 111281710445018, ["Hoje Vou Ser Tua Mulher"] = 90844637105538, ["Grelo Só Fé"] = 72200166265935
+}
+
+local Musics_Outros = {
+    ["Hoodtrap"] = 73685038553576, ["Poze CV"] = 124244582950595, ["Trap"] = 131582258401093,
+    ["Oruan - Sou Fã"] = 85342086082111, ["Fuga na Viatura"] = 131891110268352, ["Onichan"] = 17422156627
+}
+
+-- Funções Auxiliares de Nomes
+local function getKeys(tbl)
+    local keys = {}
+    for k in pairs(tbl) do table.insert(keys, k) end
+    return keys
+end
+
+MusicTab:AddSection("Requer Gamepass")
+
+
+MusicTab:AddTextBox({
+    Name = "ID Personalizado",
+    Placeholder = "Cole o ID do áudio aqui...",
+    Callback = function(Value)
+        selectedMusicID = Value
+    end
+})
+
+
+MusicTab:AddDropdown({
+    Name = "Phonk & Hits Internacionais",
+    Options = getKeys(Musics_Hits),
+    Callback = function(Value)
+        selectedMusicID = Musics_Hits[Value]
+        Window:Notify({Title = "Selecionado", Content = Value .. " pronto para tocar!", Duration = 3})
+    end
+})
+
+MusicTab:AddDropdown({
+    Name = "Funk, Samba & Brasil",
+    Options = getKeys(Musics_BR),
+    Callback = function(Value)
+        selectedMusicID = Musics_BR[Value]
+        Window:Notify({Title = "Selecionado", Content = Value .. " pronto para tocar!", Duration = 3})
+    end
+})
+
+MusicTab:AddDropdown({
+    Name = "Trap & Outros",
+    Options = getKeys(Musics_Outros),
+    Callback = function(Value)
+        selectedMusicID = Musics_Outros[Value]
+        Window:Notify({Title = "Selecionado", Content = Value .. " pronto para tocar!", Duration = 3})
+    end
+})
+
+
+MusicTab:AddButton({
+    Name = "Pegar Rádio (Boombox)",
+    Callback = function()
+        game:GetService("ReplicatedStorage"):WaitForChild("RE", 9e9):WaitForChild("1Too1l", 9e9):InvokeServer("PickingTools", "Boombox")
+    end
+})
+
+
+MusicTab:AddButton({
+    Name = "play music",
+    Callback = function()
+        if selectedMusicID ~= "" then
+            radioRE:FireServer("ToolMusicText", tostring(selectedMusicID))
+        else
+            Window:Notify({Title = "Erro", Content = "Selecione uma música ou digite um ID!", Duration = 5})
+        end
+    end
+})
+
+MusicTab:AddButton({
+    Name = "Stop Music",
+    Callback = function()
+        radioRE:FireServer("ToolMusicStop", "")
+    end
+})
+
 FunTab:AddSection("Diversão & Sus")
 
 local PlayerDropdown = FunTab:AddDropdown({
@@ -6242,6 +6340,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
