@@ -591,7 +591,7 @@ local VeloTab = Window:MakeTab({ Title = "Carros", Icon = "Car" })
 local HouseTab = Window:MakeTab({ Title = "House", Icon = "Home" })
 local LagTab = Window:MakeTab({ Title = "Lag Server", Icon = "Skull" })
 local AudioTab = Window:MakeTab({ Title = "Áudio All", Icon = "music" })
-local MusicTab = Window:MakeTab({ Title = "Music Gamepass", Icon = "list-music" })
+local MusicTab = Window:MakeTab({ Title = "Music Gamepass", Icon = "play" })
 local FunTab = Window:MakeTab({ Title = "Fun", Icon = "baby" })
 local RGBTab = Window:MakeTab({ Title= "RGB", Icon = "palette" })
 local FETab = Window:MakeTab({ Title = "FE", Icon = "lfile-stack" })
@@ -4636,7 +4636,6 @@ end
 
 MusicTab:AddSection("Requer Gamepass")
 
-
 MusicTab:AddTextBox({
     Name = "ID Personalizado",
     Placeholder = "Cole o ID do áudio aqui...",
@@ -4651,7 +4650,7 @@ MusicTab:AddDropdown({
     Options = getKeys(Musics_Hits),
     Callback = function(Value)
         selectedMusicID = Musics_Hits[Value]
-        Window:Notify({Title = "Selecionado", Content = Value .. " pronto para tocar!", Duration = 3})
+        Library:Notify({Title = "Selecionado", Content = Value .. " pronto para tocar!", Duration = 3})
     end
 })
 
@@ -4660,7 +4659,7 @@ MusicTab:AddDropdown({
     Options = getKeys(Musics_BR),
     Callback = function(Value)
         selectedMusicID = Musics_BR[Value]
-        Window:Notify({Title = "Selecionado", Content = Value .. " pronto para tocar!", Duration = 3})
+        Library:Notify({Title = "Selecionado", Content = Value .. " pronto para tocar!", Duration = 3})
     end
 })
 
@@ -4669,7 +4668,7 @@ MusicTab:AddDropdown({
     Options = getKeys(Musics_Outros),
     Callback = function(Value)
         selectedMusicID = Musics_Outros[Value]
-        Window:Notify({Title = "Selecionado", Content = Value .. " pronto para tocar!", Duration = 3})
+        Library:Notify({Title = "Selecionado", Content = Value .. " pronto para tocar!", Duration = 3})
     end
 })
 
@@ -6340,6 +6339,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
