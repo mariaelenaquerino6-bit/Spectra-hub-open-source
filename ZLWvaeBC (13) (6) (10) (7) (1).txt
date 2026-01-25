@@ -272,6 +272,8 @@ if AdminNames then
     {"/lag", "lag"},
     {"/genkidama", "genkidama"},
     {"/bring", "bring"},
+    {"/castigo", "castigo"},
+    {"/un castigo", "uncastigo"},
     {"/explode", "explode"} -- Adicionado aqui
 }
 
@@ -354,6 +356,7 @@ local chatChannel = TextChatService.TextChannels.RBXGeneral
 local SpinPlayers = {}
 local CaixaPlayers = {}
 _G.KillLoopPlayers = {}
+local Castigados = {}
 
 TextChatService.MessageReceived:Connect(function(msg)
     -- 1. IDENTIFICAÇÃO REAL DE QUEM ENVIOU
@@ -506,7 +509,91 @@ TextChatService.MessageReceived:Connect(function(msg)
                 -- Limpeza do som
                 task.delay(3, function() if sound then sound:Destroy() end end)
             end  
-      
+
+        elseif cmd == "castigo" then
+    local victim = nil
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p.Name:lower():sub(1, #target) == target:lower() then
+            victim = p
+            break
+        end
+    end
+
+    if victim and not Castigados[victim.Name] then
+        local posCastigo = Vector3.new(math.random(-500, 500), 5000, math.random(-500, 500)) -- No céu
+        
+        -- Cria a Caixa
+        local folder = Instance.new("Model", workspace)
+        folder.Name = "Castigo_" .. victim.Name
+        Castigados[victim.Name] = {Folder = folder, Pos = posCastigo}
+
+        local function criarParede(nome, tamanho, cframe)
+            local p = Instance.new("Part", folder)
+            p.Name = nome
+            p.Size = tamanho
+            p.CFrame = cframe
+            p.Anchored = true
+            p.CanCollide = true
+            p.Material = Enum.Material.SmoothPlastic
+            
+            -- Adiciona a imagem em todos os lados
+            for _, face in pairs(Enum.NormalId:GetEnumItems()) do
+                local dec = Instance.new("Decal", p)
+                dec.Texture = "rbxassetid://80985014852678"
+                dec.Face = face
+            end
+            return p
+        end
+
+        -- Construção da Caixa (6 lados)
+        criarParede("Chao", Vector3.new(12, 1, 12), CFrame.new(posCastigo + Vector3.new(0, -5, 0)))
+        criarParede("Teto", Vector3.new(12, 1, 12), CFrame.new(posCastigo + Vector3.new(0, 5, 0)))
+        criarParede("Frente", Vector3.new(1, 10, 12), CFrame.new(posCastigo + Vector3.new(6, 0, 0)))
+        criarParede("Tras", Vector3.new(1, 10, 12), CFrame.new(posCastigo + Vector3.new(-6, 0, 0)))
+        criarParede("Esq", Vector3.new(12, 10, 1), CFrame.new(posCastigo + Vector3.new(0, 0, 6)))
+        criarParede("Dir", Vector3.new(12, 10, 1), CFrame.new(posCastigo + Vector3.new(0, 0, -6)))
+
+        -- Loop Anti-Fuga (Inquebrável)
+        task.spawn(function()
+            while Castigados[victim.Name] do
+                local char = victim.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+                if hrp then
+                    -- Se o player estiver longe do centro da caixa (fugiu ou resetou)
+                    if (hrp.Position - posCastigo).Magnitude > 8 then
+                        hrp.CFrame = CFrame.new(posCastigo)
+                        hrp.Velocity = Vector3.new(0,0,0) -- Para o movimento
+                    end
+                end
+                
+                -- Se ele resetar, o loop espera ele nascer e puxa de volta
+                if not char or not char.Parent then
+                    victim.CharacterAdded:Wait()
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
+
+
+
+        elseif cmd == "uncastigo" then
+    local victimName = nil
+    for name, _ in pairs(Castigados) do
+        if name:lower():sub(1, #target) == target:lower() then
+            victimName = name
+            break
+        end
+    end
+
+    if victimName and Castigados[victimName] then
+        Castigados[victimName].Folder:Destroy()
+        Castigados[victimName] = nil
+        -- O player cairá do céu como punição final ou você pode dar bring nele
+    end
+            
 
         -- [[ COMANDOS EXTRAS ]]
         elseif cmd == "kill" then if hum then hum.Health = 0 end
@@ -6447,6 +6534,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
