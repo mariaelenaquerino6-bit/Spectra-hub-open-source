@@ -165,6 +165,20 @@ end)
 -- [[ CARREGAMENTO DA WINDUI ]]
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
+local Window = WindUI:CreateWindow({
+    Title = "CHAD HUB V2",
+    Icon = "rbxassetid://128000813657160",
+    Author = "by Bolsonaro_Jair7",
+    Folder = "ChadHub_V2_Data",
+    Size = UDim2.fromOffset(580, 460),
+    Transparent = true,
+    Theme = "ChadPurple",
+    BackgroundImageTransparency = 0.42,
+    HideSearchBar = false
+})
+
+-- [[ CONFIGURAÇÃO DO TEMA CHAD HUB - PRETO & ROXO ]]
+
 WindUI:AddTheme({
     Name = "ChadPurple", 
     
@@ -186,21 +200,6 @@ WindUI:Gradient({
 })
 
 WindUI:SetTheme("ChadPurple")
-
-local Window = WindUI:CreateWindow({
-    Title = "CHAD HUB V2",
-    Icon = "rbxassetid://128000813657160",
-    Author = "by Bolsonaro_Jair7",
-    Folder = "ChadHub_V2_Data",
-    Size = UDim2.fromOffset(580, 460),
-    Transparent = true,
-    Theme = "Dark",
-    BackgroundImageTransparency = 0.42,
-    HideSearchBar = false
-})
-
-WindUI:AddTheme({
-    Name = "My Theme", -- theme name
     
     
 
@@ -6452,6 +6451,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
