@@ -4699,6 +4699,92 @@ MusicTab:AddButton({
     end
 })
 
+MusicTab:AddSection("Carro Music Gamepass")
+
+MusicTab:AddButton({
+    Name = "Play Music Car",
+    Callback = function()
+        if selectedMusicID ~= "" then
+            local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r")
+            if remote then
+                local eventos = {
+                    "PickingVehicleMusicText",
+                    "PickingCarMusicText",
+                    "PickingScooterMusicText",
+                    "PickHouseMusicText",
+                    "ToolMusicText"
+                }
+                for _, evento in ipairs(eventos) do
+                    remote:FireServer(evento, tostring(selectedMusicID))
+                end
+                Window:Notify({Title = "Carro", Content = "Áudio enviado para o veículo!", Duration = 3})
+            end
+        else
+            Window:Notify({Title = "Aviso", Content = "Selecione uma música na aba Rádio primeiro!", Duration = 5})
+        end
+    end
+})
+
+MusicTab:AddButton({
+    Name = "Stop Music Car",
+    Callback = function()
+        local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r")
+        if remote then
+            remote:FireServer("StopMusic", 73423225643184)
+        end
+    end
+})
+
+
+MusicTab:AddSection("Music House Gamepass")
+
+-- Botão de Tocar (Usando a mesma variável selectedMusicID dos Dropdowns anteriores)
+MusicTab:AddButton({
+    Name = "Play Music House",
+    Callback = function()
+        -- Tenta pegar o ID da variável global selectedMusicID
+        local musicId = selectedMusicID
+        
+        if musicId and musicId ~= "" then
+            local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sHous1e")
+            if remote then
+                -- O Brookhaven usa o argumento "PickHouseMusicText" para o rádio da casa
+                remote:FireServer("PickHouseMusicText", tostring(musicId))
+                
+                Library:Notify({
+                    Title = "Casa",
+                    Content = "Música enviada para o som da residência!",
+                    Duration = 3
+                })
+            end
+        else
+            Window:Notify({
+                Title = "Aviso",
+                Content = "Selecione uma música na aba de Áudio primeiro!",
+                Duration = 5
+            })
+        end
+    end
+})
+
+-- Botão de Parar
+MusicTab:AddButton({
+    Name = "Stop Music House",
+    Callback = function()
+        local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sHous1e")
+        if remote then
+            -- Brookhaven usa "PickingHouseMusicStop" para silenciar a casa
+            remote:FireServer("PickingHouseMusicStop", "")
+            
+            Library:Notify({
+                Title = "Casa",
+                Content = "Som da casa desligado.",
+                Duration = 2
+            })
+        end
+    end
+})
+
 FunTab:AddSection("Diversão & Sus")
 
 local PlayerDropdown = FunTab:AddDropdown({
@@ -6339,6 +6425,7 @@ task.spawn(function()
         RE:WaitForChild("1RPNam1eColo1r", 9e9):FireServer("PickingRPBioColor", Color3.fromRGB(255, 19, 3))
     end)
 end)
+
 
 
 
